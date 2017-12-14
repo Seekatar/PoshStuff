@@ -1,4 +1,4 @@
-Import-Module (Join-Path $PSScriptRoot "..\common.psm1") -fo
+Import-Module (Join-Path $PSScriptRoot "..\PoshStuff.psm1") -fo
 $stamp = (Get-Date).ToString("HHmm")
 
 Describe "SendSlackTest" {

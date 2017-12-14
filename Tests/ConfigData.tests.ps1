@@ -1,4 +1,4 @@
-Import-Module (Join-Path (Join-Path $PSScriptRoot ..) common.psm1) -Force
+Import-Module (Join-Path (Join-Path $PSScriptRoot ..) PoshStuff.psm1) -Force
 
 Describe "StringTests" {
     $path = [System.IO.Path]::GetTempFileName()
