@@ -1,7 +1,7 @@
 # run on the newly minted build box.
 param(
 [Parameter(Mandatory)]
-[sting] $AccountUrl,
+[string] $AccountUrl,
 [Parameter(Mandatory)]
 [string] $PAT,
 [string] $Folder = "c:\agent"
@@ -13,10 +13,10 @@ Set-Location $Folder
 Add-Content ".\run.log" -Value "$(Get-Date) AccountUrl = $AccountUrl"
 Add-Content ".\run.log" -Value "$(Get-Date) PAT len = $($PAT.Length)"
 
-$fname = (Get-Item vsts-agent*.zip).FullName
+$fname = (Get-Item (Join-Path $PSScriptRoot "vsts-agent*.zip")).FullName
 Add-Content ".\run.log" -Value "$(Get-Date) fname is $fname"
 
-Expand-Archive -Path $fname -DestinationPath $Folder
+Expand-Archive -Path $fname -DestinationPath $Folder -Force
 Add-Content ".\run.log" -Value "$(Get-Date) $fname expanded into $Folder"
 
 .\config.cmd --unattended --url $AccountUrl --auth pat --token $PAT --pool default --agent $env:COMPUTERNAME --runAsService
