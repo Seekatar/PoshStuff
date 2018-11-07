@@ -37,6 +37,11 @@ if ($InstanceName -eq "MSSQLSERVER")
     $SQLSVCACCOUNT = "NT Service\MSSQLSERVER"
 }
 
+Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) Install-SqlExpress started"
+Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) InstanceName = $InstanceName"
+Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) AdminUserDomain = $AdminUserDomain"
+Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) SQLSVCACCOUNT = $SQLSVCACCOUNT"
+
 # get the downloader/installer, can't use it to install, just download
 $downloader = "SQLServer2017-SSEI-Expr.exe"
 Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) Downloading $downloader"

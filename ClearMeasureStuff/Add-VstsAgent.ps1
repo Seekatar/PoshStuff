@@ -35,7 +35,10 @@ param(
 [string] $AgentPool = "AgentPool"
 )
 
+Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) Add-VstsAgent started"
 Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) AccountUrl = $AccountUrl"
+Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) AdminUser = $AdminUser"
+Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) AgentPool = $AgentPool"
 Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) PAT len = $($PAT.Length)"
 
 $fname = (Get-Item (Join-Path $PSScriptRoot "vsts-agent*.zip")).FullName
