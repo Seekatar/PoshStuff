@@ -25,7 +25,9 @@ param(
 [Parameter(Mandatory)]
 [string] $SaPwd,
 [Parameter(Mandatory)]
-[string] $InstanceName
+[string] $InstanceName,
+[Parameter(Mandatory)]
+[string] $AdminUserDomain
 )
 $ErrorActionPreference = "Stop"
 
@@ -65,7 +67,7 @@ Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) User\Domain is '$env:
 Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) Running $setup for instance $InstanceName"
 
 <#
-This ends up failing since user it ends up being the following
+This ends up failing since user it ends up being the following since running as NETWORK SERVICE
 /SQLSYSADMINACCOUNTS="$env:USERDOMAIN\$env:USERNAME" `
 
 WORKGROUP\BootcampBuild$
@@ -74,6 +76,7 @@ WORKGROUP\BootcampBuild$
 
 & $setup /q /ACTION=Install /FEATURES=SQL /INSTANCENAME=$InstanceName /SQLSVCACCOUNT="$SQLSVCACCOUNT" `
             /SQLSVCPASSWORD=$SvcPwd /ADDCURRENTUSERASSQLADMIN `
+            /SQLSYSADMINACCOUNTS=$AdminUserDomain `
             /AGTSVCACCOUNT="NT AUTHORITY\Network Service" /SQLSVCINSTANTFILEINIT="True" /IACCEPTSQLSERVERLICENSETERMS `
             /SECURITYMODE=SQL /SAPWD=$SaPwd  2>&1 >> $LogFile | out-null
 Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) $setup exited with $LASTEXITCODE"

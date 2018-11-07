@@ -17,6 +17,12 @@ Password for the SQL Server Service
 .PARAMETER SaPwd
 Password for the sa SQL Server user
 
+.PARAMETER AdminUser
+User name to run the service as
+
+.PARAMETER AdminUserPwd
+Password for AdminUser
+
 .PARAMETER AgentPool
 Pool for the agent, defaults to "AgentPool"
 
@@ -25,6 +31,7 @@ SQL Instance name, defaults to sqlexpress2017
 
 .PARAMETER Folder
 Folder where to run this, defaults to c:\agent
+
 #>
 param(
 [Parameter(Mandatory)]
@@ -35,6 +42,10 @@ param(
 [string] $SQLServicePwd,
 [Parameter(Mandatory)]
 [string] $SaPwd,
+[Parameter(Mandatory)]
+[string] $AdminUserName,
+[Parameter(Mandatory)]
+[string] $AdminUserPwd,
 [string] $AgentPool = "AgentPool",
 [string] $InstanceName = "sqlexpress2017",
 [string] $Folder = "c:\agent"
@@ -45,16 +56,8 @@ $logFile = ".\initialize-$(get-date -Format yyyyMMdd-hhmm).log"
 mkdir $Folder -ErrorAction SilentlyContinue
 Set-Location $Folder
 
-Add-Content -Encoding Unicode $logFile -Value "$(Get-Date) AccountUrl = $AccountUrl"
-Add-Content -Encoding Unicode $logFile -Value "$(Get-Date) PAT len = $($PAT.Length)"
+$userDomain = "$env:COMPUTERNAME\$AdminUserName"
 
-$fname = (Get-Item (Join-Path $PSScriptRoot "vsts-agent*.zip")).FullName
-Add-Content -Encoding Unicode $logFile -Value "$(Get-Date) fname is $fname"
+& (Join-Path $PSScriptRoot "Add-VstsAgent.ps1") -LogFile $logFile -AccountUrl $AccountUrl -PAT $PAT -AdminUser $userDomain -AdminUserPwd $AdminUserPwd -AgentPool $AgentPool
 
-Expand-Archive -Path $fname -DestinationPath $Folder -Force
-Add-Content -Encoding Unicode $logFile -Value "$(Get-Date) $fname expanded into $Folder"
-
-.\config.cmd --unattended --url $AccountUrl --auth pat --token $PAT --pool $AgentPool --agent $env:COMPUTERNAME --runAsService 2>&1 >> $LogFile
-Add-Content -Encoding Unicode $logFile -Value "$(Get-Date) config.cmd exited and LASTEXITCODE is $LASTEXITCODE"
-
-& (Join-Path $PSScriptRoot "Install-SqlExpress.ps1") -LogFile $logFile -SaPwd $SaPwd -SvcPwd $SQLServicePwd -InstanceName $InstanceName
+& (Join-Path $PSScriptRoot "Install-SqlExpress.ps1") -LogFile $logFile -SaPwd $SaPwd -SvcPwd $SQLServicePwd -InstanceName $InstanceName -AdminUserDomain $userDomain
