@@ -1,11 +1,29 @@
-# download and install SQLExpress2017 using current directory
+<#
+.SYNOPSIS
+download and install SQLExpress2017 using current directory
+
+.DESCRIPTION
+Call by Initialize-BuildVM.ps1
+
+.PARAMETER LogFile
+File for logging
+
+.PARAMETER SvcPwd
+Password for the SQL Server Service
+
+.PARAMETER SaPwd
+Password for the sa SQL Server user
+
+.PARAMETER InstanceName
+SQL Instance name, defaults to sqlexpress2017
+#>
 param(
 [Parameter(Mandatory)]
 [string] $LogFile,
 [Parameter(Mandatory)]
-[string] $SaPwd,
-[Parameter(Mandatory)]
 [string] $SvcPwd,
+[Parameter(Mandatory)]
+[string] $SaPwd,
 [Parameter(Mandatory)]
 [string] $InstanceName
 )
@@ -38,7 +56,7 @@ Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) $installer exited wit
 
 # finally, run setup!
 $setup = Get-Item "$PWD\sql\setup\setup.exe"
-Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) Installer is $installer"
+Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) Setup is $setup"
 if ( !$setup )
 {
     throw "Can't find setup in $PWD\sql\setup"
