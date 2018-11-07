@@ -22,7 +22,7 @@ $downloader = "SQLServer2017-SSEI-Expr.exe"
 Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) Downloading $downloader"
 Invoke-WebRequest -Uri "https://download.microsoft.com/download/5/E/9/5E9B18CC-8FD5-467E-B5BF-BADE39C51F73/$downloader" -OutFile "$PWD\$downloader"
 Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) Running $downloader"
-& ".\$downloader" /Action=Download /MediaPath=$PWD\sql /MediaType=Core /Q /HP 2>&1 >> run.log | out-null
+& ".\$downloader" /Action=Download /MediaPath=$PWD\sql /MediaType=Core /Q /HP 2>&1 >> $LogFile | out-null
 Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) $downloader exited with $LASTEXITCODE"
 
 # installer is compressed, need to extract the files to get setup.exe
@@ -33,7 +33,7 @@ if ( !$installer )
     throw "Can't find installer in $PWD\sql"
 }
 Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) Running $installer"
-& $installer /x:$PWD\sql\setup /q 2>&1 >> run.log | out-null
+& $installer /x:$PWD\sql\setup /q 2>&1 >> $LogFile | out-null
 Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) $installer exited with $LASTEXITCODE"
 
 # finally, run setup!
@@ -48,6 +48,6 @@ Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) Running $setup"
 & $setup /q /ACTION=Install /FEATURES=SQL /INSTANCENAME=$InstanceName /SQLSVCACCOUNT="$SQLSVCACCOUNT" `
             /SQLSVCPASSWORD=$SvcPwd /SQLSYSADMINACCOUNTS="$env:USERDOMAIN\$env:USERNAME" `
             /AGTSVCACCOUNT="NT AUTHORITY\Network Service" /SQLSVCINSTANTFILEINIT="True" /IACCEPTSQLSERVERLICENSETERMS `
-            /SECURITYMODE=SQL /SAPWD=$SaPwd  2>&1 >> run.log | out-null
+            /SECURITYMODE=SQL /SAPWD=$SaPwd  2>&1 >> $LogFile | out-null
 Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) $setup exited with $LASTEXITCODE"
 
