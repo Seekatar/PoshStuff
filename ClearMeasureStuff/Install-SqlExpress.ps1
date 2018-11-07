@@ -61,10 +61,19 @@ if ( !$setup )
 {
     throw "Can't find setup in $PWD\sql\setup"
 }
-Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) Running $setup"
+Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) User\Domain is '$env:USERDOMAIN\$env:USERNAME'"
+Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) Running $setup for instance $InstanceName"
+
+<#
+This ends up failing since user it ends up being the following
+/SQLSYSADMINACCOUNTS="$env:USERDOMAIN\$env:USERNAME" `
+
+WORKGROUP\BootcampBuild$
+#>
+
 
 & $setup /q /ACTION=Install /FEATURES=SQL /INSTANCENAME=$InstanceName /SQLSVCACCOUNT="$SQLSVCACCOUNT" `
-            /SQLSVCPASSWORD=$SvcPwd /SQLSYSADMINACCOUNTS="$env:USERDOMAIN\$env:USERNAME" `
+            /SQLSVCPASSWORD=$SvcPwd /ADDCURRENTUSERASSQLADMIN `
             /AGTSVCACCOUNT="NT AUTHORITY\Network Service" /SQLSVCINSTANTFILEINIT="True" /IACCEPTSQLSERVERLICENSETERMS `
             /SECURITYMODE=SQL /SAPWD=$SaPwd  2>&1 >> $LogFile | out-null
 Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) $setup exited with $LASTEXITCODE"
