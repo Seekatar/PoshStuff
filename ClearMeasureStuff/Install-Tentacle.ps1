@@ -25,11 +25,21 @@ param(
 [string] $APIKey,
 [Parameter(Mandatory)]
 [string] $Thumbprint,
+[Parameter(Mandatory)]
+[string] $Role,
+[Parameter(Mandatory)]
+[string] $Environment,
 [string] $TentacleVersion = "3.23.2-x64",
-[string] $OutpusUrl = "https://clearmeasure.octopus.com"
+[string] $OctopusUrl = "https://clearmeasure.octopus.com"
 )
 
+Set-StrictMode -Version Latest
+
 Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) Install-Tentacle started"
+Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) OctopusUrl is $OctopusUrl"
+Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) TentacleVersion is $TentacleVersion"
+Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) Role is $Role"
+Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) Environment is $Environment"
 
 $fname = "Octopus.Tentacle.$TentacleVersion.msi"
 Invoke-WebRequest "https://download.octopusdeploy.com/octopus/$fname" -OutFile $fname
@@ -56,7 +66,7 @@ try
     netsh.exe advfirewall firewall add rule "name=Octopus Deploy Tentacle" dir=in action=allow protocol=TCP localport=10933 | Out-null
     Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) netsh exited with $LASTEXITCODE"
 
-    .\Tentacle.exe register-with --instance "Tentacle" --server $OctopusUrl --apiKey=$ApiKey --role "web-server" --environment "Staging" --comms-style TentaclePassive --console | Out-null
+    .\Tentacle.exe register-with --instance "Tentacle" --server $OctopusUrl --apiKey=$ApiKey --role $Role --environment $Environment --comms-style TentaclePassive --console | Out-null
     Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) register with exited with $LASTEXITCODE"
 
     .\Tentacle.exe service --instance "Tentacle" --install --start --console | Out-null
@@ -66,6 +76,7 @@ try
 catch
 {
     Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) Exception installing Tentacle $($_.ToString())"
+    throw $_
 }
 finally
 {
