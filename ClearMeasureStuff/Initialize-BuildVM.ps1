@@ -46,6 +46,10 @@ param(
 [string] $AdminUserName,
 [Parameter(Mandatory)]
 [string] $AdminUserPwd,
+[Parameter(Mandatory)]
+[string] $OctopusApiKey,
+[Parameter(Mandatory)]
+[string] $OctopusThumbprint,
 [string] $AgentPool = "AgentPool",
 [string] $InstanceName = "sqlexpress2017",
 [string] $Folder = "c:\agent"
@@ -61,3 +65,5 @@ $userDomain = "$env:COMPUTERNAME\$AdminUserName"
 & (Join-Path $PSScriptRoot "Add-VstsAgent.ps1") -LogFile $logFile -AccountUrl $AccountUrl -PAT $PAT -AdminUser $userDomain -AdminUserPwd $AdminUserPwd -AgentPool $AgentPool
 
 & (Join-Path $PSScriptRoot "Install-SqlExpress.ps1") -LogFile $logFile -SaPwd $SaPwd -SvcPwd $SQLServicePwd -InstanceName $InstanceName -AdminUserDomain $userDomain
+
+& (Join-Path $PSScriptRoot "Install-Tentacle.ps1") -LogFile $logFile -ApiKey $OctopusApiKey -Thumbprint $OctopusThumbprint

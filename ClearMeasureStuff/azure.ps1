@@ -1,8 +1,10 @@
 ##### snippet to load
 ipmo C:\code\joat-powershell\joat-config\joat-config.psd1 -fo
 ipmo vsteam -fo
-ipmo C:\code\ClearMeasure\Internal-Playbook\scripts\Bootcamp\Bootcamp\Bootcamp.psm1 -fo -ArgumentList (Get-ConfigData Jw.BootcampPAT -Decrypt),jimwallace0953,CmBootCamp
 
+# My CmBootcamp
+ipmo C:\code\ClearMeasure\Internal-Playbook\scripts\Bootcamp\Bootcamp\Bootcamp.psm1 -fo -ArgumentList (Get-ConfigData Jw.BootcampPAT -Decrypt),jimwallace0953,CmBootCamp
+# CM CmBootcamp
 ipmo C:\code\ClearMeasure\Internal-Playbook\scripts\Bootcamp\Bootcamp\Bootcamp.psm1 -ArgumentList (Get-ConfigData Cm.powershellpat -Decrypt),'clearmeasure','ClearMeasureBootcamp' -fo
 
 ##### snippet to setup the vsts agent, run in folder where installed it
