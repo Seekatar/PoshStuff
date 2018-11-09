@@ -34,7 +34,7 @@ Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) Install-Tentacle star
 $fname = "Octopus.Tentacle.$TentacleVersion.msi"
 Invoke-WebRequest "https://download.octopusdeploy.com/octopus/$fname" -OutFile $fname
 Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) Downloaded $fname"
-msiexec /i $fname /quiet | out-null
+msiexec.exe /i $fname /quiet | out-null
 Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) Installer exited with $LASTEXITCODE"
 
 Set-Location "C:\Program Files\Octopus Deploy\Tentacle"
@@ -50,7 +50,7 @@ Tentacle.exe configure --instance "Tentacle" --home "C:\Octopus" --app "C:\Octop
 Tentacle.exe configure --instance "Tentacle" --trust $Thumbprint --console | Out-null
 Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) config commands exited with $LASTEXITCODE"
 
-"netsh" advfirewall firewall add rule "name=Octopus Deploy Tentacle" dir=in action=allow protocol=TCP localport=10933 | Out-null
+netsh.exe advfirewall firewall add rule "name=Octopus Deploy Tentacle" dir=in action=allow protocol=TCP localport=10933 | Out-null
 Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) netsh exited with $LASTEXITCODE"
 
 Tentacle.exe register-with --instance "Tentacle" --server $OctopusUrl --apiKey=$ApiKey --role "web-server" --environment "Staging" --comms-style TentaclePassive --console | Out-null

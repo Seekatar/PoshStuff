@@ -52,7 +52,10 @@ param(
 [string] $OctopusThumbprint,
 [string] $AgentPool = "AgentPool",
 [string] $InstanceName = "sqlexpress2017",
-[string] $Folder = "c:\agent"
+[string] $Folder = "c:\agent",
+[switch] $SkipVsts,
+[switch] $SkipSql,
+[switch] $SkipTentacle
 )
 
 $logFile = ".\initialize-$(get-date -Format yyyyMMdd-hhmm).log"
@@ -62,8 +65,19 @@ Set-Location $Folder
 
 $userDomain = "$env:COMPUTERNAME\$AdminUserName"
 
-& (Join-Path $PSScriptRoot "Add-VstsAgent.ps1") -LogFile $logFile -AccountUrl $AccountUrl -PAT $PAT -AdminUser $userDomain -AdminUserPwd $AdminUserPwd -AgentPool $AgentPool
+Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) Starting init: SkipVsts: $SkipVsts SkipSql: $SkipSql SkipTentacle: $SkipTentacle"
 
-& (Join-Path $PSScriptRoot "Install-SqlExpress.ps1") -LogFile $logFile -SaPwd $SaPwd -SvcPwd $SQLServicePwd -InstanceName $InstanceName -AdminUserDomain $userDomain
+if ( !$SkipVsts )
+{
+    & (Join-Path $PSScriptRoot "Add-VstsAgent.ps1") -LogFile $logFile -AccountUrl $AccountUrl -PAT $PAT -AdminUser $userDomain -AdminUserPwd $AdminUserPwd -AgentPool $AgentPool
+}
 
-& (Join-Path $PSScriptRoot "Install-Tentacle.ps1") -LogFile $logFile -ApiKey $OctopusApiKey -Thumbprint $OctopusThumbprint
+if ( !$SkipSql )
+{
+    & (Join-Path $PSScriptRoot "Install-SqlExpress.ps1") -LogFile $logFile -SaPwd $SaPwd -SvcPwd $SQLServicePwd -InstanceName $InstanceName -AdminUserDomain $userDomain
+}
+
+if ( !$SkipTentacle )
+{
+    & (Join-Path $PSScriptRoot "Install-Tentacle.ps1") -LogFile $logFile -ApiKey $OctopusApiKey -Thumbprint $OctopusThumbprint
+}
