@@ -13,17 +13,16 @@ Name of the PS Module.  Will import ..\$ModuleName\$ModuleName.psd1
 Test tags, defaults to PSSA, UnitTest (PS Script Analyzer)
 
 .EXAMPLE
-.\Invoke-Tests.ps1 -TestFolder $env:Build_SourcesDirectory\Tests -ModuleName $env:ModuleName
+.\Invoke-Tests.ps1 -TestFolder $env:Build_SourcesDirectory\Tests -ModulePath $env:ModulePath
 
-Called from AzureDevOps Build pipeline
-
+Called from AzureDevOps Build pipeline, ModulePath can be .\MyModule\MyModule.psd1, etc.
 #>
 param(
 [Parameter(Mandatory)]
 [ValidateScript({Test-Path $_ -PathType Container})]
 [string] $TestFolder,
 [Parameter(Mandatory)]
-[string] $ModuleName,
+[string] $ModulePath,
 [string[]] $Tags = @("PSSA","UnitTest")
 )
 
@@ -32,6 +31,8 @@ if ( $PSVersionTable.PSVersion -lt "5.1")
     $PSVersionTable
     throw "Must have PS 5.1 or higher to use Module cmdlets with Credentials"
 }
+
+Import-Module $ModulePath
 
 Set-Location $TestFolder
 
@@ -48,9 +49,7 @@ if ( -not (Get-Module -Name PSScriptAnalyzer ) )
 Import-Module Pester
 Import-Module PSScriptAnalyzer
 
-Import-Module  ..\$ModuleName\$ModuleName.psd1
-
-$result = Invoke-Pester -OutputFile 'PesterResults.xml' -OutputFormat 'NUnitXml' -Tags $tags -PassThru
+$result = Invoke-Pester -OutputFile 'TEST-PesterResults.xml' -OutputFormat 'NUnitXml' -Tags $tags -PassThru
 if ( $result.FailedCount )
 {
     throw "Pester tests failed.  Count is $($result.FailedCount)"
