@@ -58,7 +58,10 @@ param(
 [string] $OctopusThumbprint,
 [Parameter(Mandatory)]
 [string[]] $Roles,
-[string[]] $Environments = @("Test","Staging","Production"),
+[Parameter(Mandatory)]
+[string[]] $Environments,
+[Parameter(Mandatory)]
+[string] $PublicIp,
 [string] $AgentPool = "AgentPool",
 [string] $InstanceName = "sqlexpress2017",
 [string] $Folder = "c:\agent",
@@ -67,15 +70,14 @@ param(
 [switch] $SkipTentacle
 )
 
-$logFile = ".\initialize-$(get-date -Format yyyyMMdd-hhmm).log"
-$transcript = ".\initialize-transcript-$(get-date -Format yyyyMMdd-hhmm).log"
+mkdir $Folder -ErrorAction SilentlyContinue
+Set-Location $Folder
+
+$logFile = "$PWD\initialize-$(get-date -Format yyyyMMdd-hhmm).log"
+$transcript = "$PWD\initialize-transcript-$(get-date -Format yyyyMMdd-hhmm).log"
 
 Start-Transcript -Path $transcript
 try {
-
-
-    mkdir $Folder -ErrorAction SilentlyContinue
-    Set-Location $Folder
 
     $userDomain = "$env:COMPUTERNAME\$AdminUserName"
 
@@ -93,7 +95,7 @@ try {
 
     if ( !$SkipTentacle )
     {
-        & (Join-Path $PSScriptRoot "Install-Tentacle.ps1") -LogFile $logFile -ApiKey $OctopusApiKey -Thumbprint $OctopusThumbprint -Roles $Roles -Environments $Environments
+        & (Join-Path $PSScriptRoot "Install-Tentacle.ps1") -LogFile $logFile -ApiKey $OctopusApiKey -Thumbprint $OctopusThumbprint -Roles $Roles -Environments $Environments -PublicIp $PublicIp
     }
 
 }
