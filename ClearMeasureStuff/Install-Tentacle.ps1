@@ -26,9 +26,9 @@ param(
 [Parameter(Mandatory)]
 [string] $Thumbprint,
 [Parameter(Mandatory)]
-[string] $Role,
+[string[]] $Roles,
 [Parameter(Mandatory)]
-[string] $Environment,
+[string[]] $Environments,
 [string] $TentacleVersion = "3.23.2-x64",
 [string] $OctopusUrl = "https://clearmeasure.octopus.com"
 )
@@ -38,14 +38,14 @@ Set-StrictMode -Version Latest
 Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) Install-Tentacle started"
 Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) OctopusUrl is $OctopusUrl"
 Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) TentacleVersion is $TentacleVersion"
-Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) Role is $Role"
-Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) Environment is $Environment"
+Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) Role is $Roles"
+Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) Environment is $Environments"
 
 $fname = "Octopus.Tentacle.$TentacleVersion.msi"
 Invoke-WebRequest "https://download.octopusdeploy.com/octopus/$fname" -OutFile $fname
 Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) Downloaded $fname"
 msiexec.exe /i $fname /quiet | out-null
-Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) Installer exited with $LASTEXITCODE"
+Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) Tentacle Installer exited with $LASTEXITCODE"
 
 Push-Location "C:\Program Files\Octopus Deploy\Tentacle"
 $ErrorActionPreference = "Stop"
@@ -66,7 +66,7 @@ try
     netsh.exe advfirewall firewall add rule "name=Octopus Deploy Tentacle" dir=in action=allow protocol=TCP localport=10933 | Out-null
     Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) netsh exited with $LASTEXITCODE"
 
-    .\Tentacle.exe register-with --instance "Tentacle" --server $OctopusUrl --apiKey=$ApiKey --role $Role --environment $Environment --comms-style TentaclePassive --console | Out-null
+    .\Tentacle.exe register-with --instance "Tentacle" --server $OctopusUrl --apiKey=$ApiKey --role $Roles --environment $Environments --comms-style TentaclePassive --console -publichostname $publicIp -force | Out-null
     Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) register with exited with $LASTEXITCODE"
 
     .\Tentacle.exe service --instance "Tentacle" --install --start --console | Out-null

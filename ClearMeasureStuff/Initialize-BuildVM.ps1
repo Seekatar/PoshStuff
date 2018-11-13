@@ -23,6 +23,9 @@ User name to run the service as
 .PARAMETER AdminUserPwd
 Password for AdminUser
 
+.PARAMETER Roles
+Octopus Roles
+
 .PARAMETER AgentPool
 Pool for the agent, defaults to "AgentPool"
 
@@ -31,6 +34,9 @@ SQL Instance name, defaults to sqlexpress2017
 
 .PARAMETER Folder
 Folder where to run this, defaults to c:\agent
+
+.PARAMETER Environments
+Octopus Environments
 
 #>
 param(
@@ -50,6 +56,9 @@ param(
 [string] $OctopusApiKey,
 [Parameter(Mandatory)]
 [string] $OctopusThumbprint,
+[Parameter(Mandatory)]
+[string[]] $Roles,
+[string[]] $Environments = @("Test","Staging","Production"),
 [string] $AgentPool = "AgentPool",
 [string] $InstanceName = "sqlexpress2017",
 [string] $Folder = "c:\agent",
@@ -59,25 +68,36 @@ param(
 )
 
 $logFile = ".\initialize-$(get-date -Format yyyyMMdd-hhmm).log"
+$transcript = ".\initialize-transcript-$(get-date -Format yyyyMMdd-hhmm).log"
 
-mkdir $Folder -ErrorAction SilentlyContinue
-Set-Location $Folder
+Start-Transcript -Path $transcript
+try {
 
-$userDomain = "$env:COMPUTERNAME\$AdminUserName"
 
-Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) Starting init: SkipVsts: $SkipVsts SkipSql: $SkipSql SkipTentacle: $SkipTentacle"
+    mkdir $Folder -ErrorAction SilentlyContinue
+    Set-Location $Folder
 
-if ( !$SkipVsts )
-{
-    & (Join-Path $PSScriptRoot "Add-VstsAgent.ps1") -LogFile $logFile -AccountUrl $AccountUrl -PAT $PAT -AdminUser $userDomain -AdminUserPwd $AdminUserPwd -AgentPool $AgentPool
+    $userDomain = "$env:COMPUTERNAME\$AdminUserName"
+
+    Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) Starting init: SkipVsts: $SkipVsts SkipSql: $SkipSql SkipTentacle: $SkipTentacle"
+
+    if ( !$SkipVsts )
+    {
+        & (Join-Path $PSScriptRoot "Add-VstsAgent.ps1") -LogFile $logFile -AccountUrl $AccountUrl -PAT $PAT -AdminUser $userDomain -AdminUserPwd $AdminUserPwd -AgentPool $AgentPool
+    }
+
+    if ( !$SkipSql )
+    {
+        & (Join-Path $PSScriptRoot "Install-SqlExpress.ps1") -LogFile $logFile -SaPwd $SaPwd -SvcPwd $SQLServicePwd -InstanceName $InstanceName -AdminUserDomain $userDomain
+    }
+
+    if ( !$SkipTentacle )
+    {
+        & (Join-Path $PSScriptRoot "Install-Tentacle.ps1") -LogFile $logFile -ApiKey $OctopusApiKey -Thumbprint $OctopusThumbprint -Roles $Roles -Environments $Environments
+    }
+
+}
+finally {
+    Stop-Transcript
 }
 
-if ( !$SkipSql )
-{
-    & (Join-Path $PSScriptRoot "Install-SqlExpress.ps1") -LogFile $logFile -SaPwd $SaPwd -SvcPwd $SQLServicePwd -InstanceName $InstanceName -AdminUserDomain $userDomain
-}
-
-if ( !$SkipTentacle )
-{
-    & (Join-Path $PSScriptRoot "Install-Tentacle.ps1") -LogFile $logFile -ApiKey $OctopusApiKey -Thumbprint $OctopusThumbprint
-}
