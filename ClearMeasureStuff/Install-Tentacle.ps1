@@ -52,6 +52,9 @@ $ErrorActionPreference = "Stop"
 
 try
 {
+    $publicIp = (Invoke-WebRequest http://ifconfig.me/ip -UseBasicParsing).Content
+    Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) Got public IP of $publicIp"
+
     .\Tentacle.exe create-instance --instance "Tentacle" --config "C:\Octopus\Tentacle.config" --console  | Out-null
     Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) create instance exited with $LASTEXITCODE"
 
