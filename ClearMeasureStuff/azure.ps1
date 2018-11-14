@@ -1,5 +1,4 @@
 ##### snippet to load
-ipmo C:\code\joat-powershell\joat-config\joat-config.psd1 -fo
 ipmo vsteam -fo
 
 # My CmBootcamp
