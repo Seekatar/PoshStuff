@@ -70,6 +70,32 @@ param(
 [switch] $SkipTentacle
 )
 
+Set-StrictMode -Version Latest
+$ErrorActionPreference = "Stop"
+
+function LogIt {
+param(
+[Parameter(Mandatory)]
+[string]$msg,
+[switch] $indent,
+[int] $lastExit = 0
+)
+
+    $indentStr = ""
+    if ( $indent )
+    {
+        $indentStr = "    "
+    }
+
+    Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) $indent$msg"
+    Write-Output $indentStr$msg
+
+    if ( $lastExit )
+    {
+        throw "Non-zero last exit of $lastexit"
+    }
+}
+
 mkdir $Folder -ErrorAction SilentlyContinue
 Set-Location $Folder
 
@@ -81,11 +107,11 @@ try {
 
     $userDomain = "$env:COMPUTERNAME\$AdminUserName"
 
-    Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) Starting init: SkipVsts: $SkipVsts SkipSql: $SkipSql SkipTentacle: $SkipTentacle"
+    logIt "Starting init: SkipVsts: $SkipVsts SkipSql: $SkipSql SkipTentacle: $SkipTentacle"
 
     if ( !$SkipVsts )
     {
-        & (Join-Path $PSScriptRoot "Add-VstsAgent.ps1") -LogFile $logFile -AccountUrl $AccountUrl -PAT $PAT -AdminUser $userDomain -AdminUserPwd $AdminUserPwd -AgentPool $AgentPool
+        & (Join-Path $PSScriptRoot "Add-VstsAgent.ps1") -LogFile $logFile -AccountUrl $AccountUrl -PAT $PAT -AdminUser $AdminUserName -AdminUserPwd $AdminUserPwd -AgentPool $AgentPool
     }
 
     if ( !$SkipSql )
@@ -95,7 +121,7 @@ try {
 
     if ( !$SkipTentacle )
     {
-        & (Join-Path $PSScriptRoot "Install-Tentacle.ps1") -LogFile $logFile -ApiKey $OctopusApiKey -Thumbprint $OctopusThumbprint -Roles $Roles -Environments $Environments -PublicIp $PublicIp
+        & (Join-Path $PSScriptRoot "Install-Tentacle.ps1") -ApiKey $OctopusApiKey -Thumbprint $OctopusThumbprint -Roles $Roles -Environments $Environments -PublicIp $PublicIp
     }
 
 }

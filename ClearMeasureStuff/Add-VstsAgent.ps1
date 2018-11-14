@@ -35,19 +35,26 @@ param(
 [string] $AgentPool = "AgentPool"
 )
 
-Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) Add-VstsAgent started"
-Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) AccountUrl = $AccountUrl"
-Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) AdminUser = $AdminUser"
-Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) AgentPool = $AgentPool"
-Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) PAT len = $($PAT.Length)"
+Set-StrictMode -Version Latest
+$ErrorActionPreference = "Stop"
+
+$Folder = $PWD
+
+Logit "Add-VstsAgent started"
+Logit -indent "AccountUrl = $AccountUrl"
+Logit -indent "AdminUser = $AdminUser"
+Logit -indent "AgentPool = $AgentPool"
+Logit -indent "PAT $($PAT[0]+"*"*$PAT.Length)"
+Logit -indent "AdminUserPwd $($AdminUserPwd[0]+"*"*$AdminUserPwd.Length)"
+Logit -indent "Folder is $Folder"
 
 $fname = (Get-Item (Join-Path $PSScriptRoot "vsts-agent*.zip")).FullName
-Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) fname is $fname"
+Logit -indent "fname is $fname"
 
 Expand-Archive -Path $fname -DestinationPath $Folder -Force
-Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) $fname expanded into $Folder"
+Logit -indent "$fname expanded into $Folder"
 
 .\config.cmd --unattended --url $AccountUrl --auth pat --token $PAT --pool $AgentPool --agent $env:COMPUTERNAME --windowsLogonAccount $AdminUser --windowsLogonPassword $AdminUserPwd --runAsService 2>&1 >> $LogFile
-Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) config.cmd exited and LASTEXITCODE is $LASTEXITCODE"
+Logit -indent "config.cmd exited and LASTEXITCODE is $LASTEXITCODE" -LastExitCode $LASTEXITCODE
 
 
