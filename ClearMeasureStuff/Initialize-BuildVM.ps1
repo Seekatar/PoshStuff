@@ -67,7 +67,8 @@ param(
 [string] $Folder = "c:\agent",
 [switch] $SkipVsts,
 [switch] $SkipSql,
-[switch] $SkipTentacle
+[switch] $SkipTentacle,
+[switch] $SkipIIS
 )
 
 Set-StrictMode -Version Latest
@@ -122,6 +123,11 @@ try {
     if ( !$SkipTentacle )
     {
         & (Join-Path $PSScriptRoot "Install-Tentacle.ps1") -ApiKey $OctopusApiKey -Thumbprint $OctopusThumbprint -Roles $Roles -Environments $Environments -PublicIp $PublicIp
+    }
+
+    if ( !$SkipIIS )
+    {
+        & (Join-Path $PSScriptRoot "Enable-IISFeature.ps1")
     }
 
 }
