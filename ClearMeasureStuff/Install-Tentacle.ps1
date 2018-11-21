@@ -33,6 +33,16 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
+# not getting it split into array somewhere along the way.
+if ( $Environments.Count -eq 1 )
+{
+    $Environments = $Environments -split ","
+}
+if ( $Roles.Count -eq 1 )
+{
+    $Roles = $Roles -split ","
+}
+
 Logit "Install-Tentacle started"
 Logit -indent "APIKey $($APIKey[0]+"*"*$APIKey.Length)"
 Logit -indent "Thumbprint $($Thumbprint[0]+"*"*$Thumbprint.Length)"
