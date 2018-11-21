@@ -55,7 +55,7 @@ Expand-Archive -Path $fname -DestinationPath $Folder -Force
 Logit -indent "$fname expanded into $Folder"
 
 # ok to remove if not there
-.\config.cmd remove --unattended --auth pat --token $PAT
+.\config.cmd remove --unattended --auth pat --token $PAT 2>&1 >> $LogFile
 
 .\config.cmd --unattended --url $AccountUrl --auth pat --token $PAT --pool $AgentPool --agent $env:COMPUTERNAME --windowsLogonAccount $AdminUser --windowsLogonPassword $AdminUserPwd --runAsService 2>&1 >> $LogFile
 Logit -indent "config.cmd exited and LASTEXITCODE is $LASTEXITCODE" -LastExit $LASTEXITCODE
