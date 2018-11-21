@@ -58,6 +58,6 @@ Logit -indent "$fname expanded into $Folder"
 .\config.cmd remove --unattended --auth pat --token $PAT
 
 .\config.cmd --unattended --url $AccountUrl --auth pat --token $PAT --pool $AgentPool --agent $env:COMPUTERNAME --windowsLogonAccount $AdminUser --windowsLogonPassword $AdminUserPwd --runAsService 2>&1 >> $LogFile
-Logit -indent "config.cmd exited and LASTEXITCODE is $LASTEXITCODE" -LastExitCode $LASTEXITCODE
+Logit -indent "config.cmd exited and LASTEXITCODE is $LASTEXITCODE" -LastExit $LASTEXITCODE
 
 
