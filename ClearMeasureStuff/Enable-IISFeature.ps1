@@ -35,7 +35,7 @@ foreach ( $feature in $features )
 {
     Logit -indent $feature
     $result = Enable-WindowsOptionalFeature -online -FeatureName $feature
-    $RestartNeeded = $rebootNeeded -and $result.RestartNeeded
+    $RestartNeeded = $RestartNeeded -and $result.RestartNeeded
     $i += 1
 }
 $RestartNeeded
