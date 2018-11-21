@@ -36,11 +36,11 @@ $ErrorActionPreference = "Stop"
 # not getting it split into array somewhere along the way.
 if ( $Environments.Count -eq 1 )
 {
-    $Environments = $Environments -split ","
+    $Environments = $Environments[0] -split ","
 }
 if ( $Roles.Count -eq 1 )
 {
-    $Roles = $Roles -split ","
+    $Roles = $Roles[0] -split ","
 }
 
 Logit "Install-Tentacle started"
