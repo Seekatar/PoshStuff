@@ -88,7 +88,7 @@ param(
         $indentStr = "    "
     }
 
-    Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) $indent$msg"
+    Add-Content -Encoding Unicode $LogFile -Value "$(Get-Date) $indentStr$msg"
     Write-Output $indentStr$msg
 
     if ( $lastExit )
@@ -97,7 +97,7 @@ param(
     }
 }
 
-mkdir $Folder -ErrorAction SilentlyContinue
+$null = mkdir $Folder -ErrorAction SilentlyContinue
 Set-Location $Folder
 
 $logFile = "$PWD\initialize-$(get-date -Format yyyyMMdd-hhmm).log"
