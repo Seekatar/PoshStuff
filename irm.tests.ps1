@@ -1,4 +1,5 @@
-﻿Describe "Invoke-RestMethod Tests" {
+﻿# test
+Describe "Invoke-RestMethod Tests" {
 
 It "Gets A Todo" {
     $todo = Invoke-RestMethod -Uri 'https://jsonplaceholder.typicode.com/todos/1'
@@ -18,7 +19,7 @@ It "Posts" {
                   completed = $false }
 
     $result = irm -ur 'https://jsonplaceholder.typicode.com/posts' -Method Post -Body (ConvertTo-Json $postObj) -ContentType "application/json"
-    $result.Id | Should be 101 
+    $result.Id | Should be 101
 }
 
 It "Gets VSTS Projects" {
@@ -36,7 +37,7 @@ It "Fails TLS" {
 
 It "Succeeds TLS" {
     [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
-    $repos = Invoke-RestMethod -Method Get -Uri "https://api.github.com/orgs/klwine/repos" -Headers @{Authorization="token $env:gitToken";Accept="application/json"} 
+    $repos = Invoke-RestMethod -Method Get -Uri "https://api.github.com/orgs/klwine/repos" -Headers @{Authorization="token $env:gitToken";Accept="application/json"}
     $repos.Count | Should BeGreaterThan 0
 }
 
@@ -46,7 +47,7 @@ It "Gets PinPoint Token" {
     $response.Result | Should be "Valid"
 }
 
-<# 
+<#
 F12 Dev tools will generate PowerShell
 
 Other useful options
