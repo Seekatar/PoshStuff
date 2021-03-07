@@ -14,10 +14,19 @@ Set to decode instead of encode
 .PARAMETER Wrap
 For encoding, line wrapping. Defaults to 76. 0 means no wrap
 
+.PARAMETER Binary
+Output will be a string by default. If you want the bytes, set this
+
 .EXAMPLE
-"C:\code\Service-Template\README.md" | base64 -Wrap 120 | Set-Clipboard
+"TestApp.dll" | base64 -Wrap 120
 
 Encode a file
+
+.EXAMPLE
+$temp = New-TemporaryFile
+[System.IO.File]::WriteAllBytes( $temp, ($base64EncodingOfBinaryFile | base64 -d -binary))
+
+Decode a binary file, note -binary
 
 .EXAMPLE
 "this is a test" | base64 | Set-Clipboard
@@ -36,43 +45,53 @@ function base64
         [Parameter(Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName)]
         [string] $s,
         [switch] $decode,
-        [int] $Wrap = 76
+        [int] $Wrap = 76,
+        [switch] $binary
     )
 
     process
     {
         Set-StrictMode -Version Latest
+        $ErrorActionPreference = 'Stop'
 
-        if (Test-Path $s -PathType Leaf)
+        if ($s.Length -le 260 -and (Test-Path $s -PathType Leaf))
         {
-            $s = Get-Content $s -Raw
-        }
-        if ($decode)
-        {
-            [System.Text.Encoding]::utf8.GetString( [System.Convert]::FromBase64String($s))
+            $str = Get-Content $s -AsByteStream
+            $code = [System.Convert]::ToBase64String($str)
         }
         else
         {
             $code = [System.Convert]::ToBase64String([System.Text.Encoding]::utf8.GetBytes($s))
+        }
+
+        if ($decode)
+        {
+            if ($binary) {
+                [System.Convert]::FromBase64String($s)
+            } else {
+                [System.Text.Encoding]::utf8.GetString( [System.Convert]::FromBase64String($s))
+            }
+        }
+        else
+        {
             if ($Wrap)
             {
+                $temp = ""
                 $len = $code.Length
                 $start = 0
                 while ($len -gt $Wrap)
                 {
-                    "$($code.Substring($start,$Wrap))"
+                    $temp += "$($code.Substring($start,$Wrap))`n"
                     $start += $Wrap
                     $len -= $Wrap
                 }
                 if ($len)
                 {
-                    $code.Substring($start)
+                    $temp += $code.Substring($start)
                 }
+                $code = $temp
             }
-            else
-            {
-                $code
-            }
+            $code
         }
     }
 }
